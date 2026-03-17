@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 140 30% 25%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 140 30% 25%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 140 30% 25%;
+
+    /* Sage green primary */
+    --primary: 140 28% 45%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Lighter sage for secondary */
+    --secondary: 140 20% 88%;
+    --secondary-foreground: 140 30% 25%;
+
+    --muted: 140 15% 95%;
+    --muted-foreground: 140 10% 45%;
+
+    /* Champagne accent */
+    --accent: 45 35% 82%;
+    --accent-foreground: 140 30% 25%;
+    
+    /* Blush accent */
+    --blush: 350 35% 85%;
+    --blush-foreground: 140 30% 25%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 15% 90%;
+    --input: 140 15% 90%;
+    --ring: 140 28% 45%;
+
+    --radius: 0.75rem;
+
+    /* Custom wedding theme tokens */
+    --hero-overlay: 140 30% 15%;
+    --section-bg: 140 12% 98%;
+    
+    /* Gradients */
+    --gradient-sage: linear-gradient(135deg, hsl(140 28% 45% / 0.05), hsl(140 20% 88% / 0.1));
+    --gradient-hero: linear-gradient(to bottom, transparent 0%, hsl(140 30% 15% / 0.3) 100%);
+    
+    /* Animations */
+    --transition-smooth: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .dark {
+    --background: 140 30% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 140 25% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 140 25% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 140 25% 55%;
+    --primary-foreground: 140 30% 10%;
+
+    --secondary: 140 20% 20%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 140 15% 18%;
+    --muted-foreground: 140 10% 65%;
+
+    --accent: 45 30% 45%;
+    --accent-foreground: 0 0% 98%;
+    
+    --blush: 350 30% 45%;
+    --blush-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 140 15% 20%;
+    --input: 140 15% 20%;
+    --ring: 140 25% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.5s ease-out forwards;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .parallax {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+}

@@ -1,0 +1,12 @@
+name: Deploy to GitHub Pages (disabled - using branch docs)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "This workflow is intentionally disabled because deployment uses the 'docs' branch source."
+
+
