@@ -6,10 +6,31 @@ import banner2 from "@/assets/photos/banner-2.jpg";
 // import banner4 from "@/assets/photos/banner-4.jpg";
 import { Button } from "./ui/button";
 
-// const heroImages = [banner1, banner2, banner3, banner4];
-const heroImages = [banner2];
+// const defaultImages = [banner1, banner2, banner3, banner4];
+const defaultImages = [banner2];
 
-const HeroSection = () => {
+export interface HeroSectionProps {
+  backgroundImages?: string[];
+  coupleNames?: string;
+  tagline?: string;
+  showRsvpButton?: boolean;
+  rsvpButtonLabel?: string;
+  overlayOpacity?: number;
+  onCoupleNamesChange?: (value: string) => void;
+  onTaglineChange?: (value: string) => void;
+  onBackgroundImageChange?: (value: string) => void;
+}
+
+const HeroSection = ({
+  backgroundImages,
+  coupleNames = "Prince & Ann",
+  tagline = "ARE GETTING MARRIED",
+  showRsvpButton = true,
+  rsvpButtonLabel = "RSVP Now",
+  overlayOpacity,
+}: HeroSectionProps = {}) => {
+  const heroImages = backgroundImages ?? defaultImages;
+
   const { scrollY } = useScroll();
   const smoothY = useSpring(scrollY, {
     stiffness: 40,
@@ -20,14 +41,17 @@ const HeroSection = () => {
   const opacity = useTransform(smoothY, [0, 300], [1, 0]);
   const maskY = useTransform(smoothY, [0, 300], ["0%", "100%"]);
 
+  void maskY; // used in original masking effect
+
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
+    if (heroImages.length <= 1) return;
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % heroImages.length);
     }, 12000);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroImages.length]);
 
   const scrollToRSVP = () => {
     // Start background music on RSVP click
@@ -42,13 +66,9 @@ const HeroSection = () => {
     }
   };
 
-  // Generate confetti circles for mask
-  const confettiCircles = Array.from({ length: 40 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    delay: Math.random() * 0.8,
-    size: 20 + Math.random() * 40,
-  }));
+  const heroOverlayStyle = overlayOpacity !== undefined
+    ? { background: `linear-gradient(to bottom, transparent 0%, rgba(0,0,0,${overlayOpacity}) 100%)` }
+    : { background: "var(--gradient-hero)" };
 
   return (
     <section className="relative h-screen overflow-hidden">
@@ -80,9 +100,7 @@ const HeroSection = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
           className="absolute inset-0"
-          style={{
-            background: "var(--gradient-hero)",
-          }}
+          style={heroOverlayStyle}
         />
       </motion.div>
 
@@ -98,10 +116,10 @@ const HeroSection = () => {
             transition={{ duration: 1, delay: 0.2 }}
           >
             <h1 className="mb-4 text-6xl font-bold tracking-wide md:text-8xl">
-              Prince & Ann
+              {coupleNames}
             </h1>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -109,45 +127,44 @@ const HeroSection = () => {
             className="mb-8"
           >
             <p className="text-xl font-light tracking-widest md:text-2xl">
-              ARE GETTING MARRIED
+              {tagline}
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            {/* <p className="mb-8 text-lg font-light tracking-wide md:text-xl">
-              Join us in celebrating our love
-            </p> */}
-            <div className="relative inline-block w-full">
-              <Button
-                onClick={scrollToRSVP}
-                size="lg"
-                className={`
-                  relative overflow-hidden
-                  px-5 py-5
-                  text-lg md:text-xl
-                  font-regular
-                  shadow-2xl
-                  border border-white
-                  bg-white
-                  text-green-700 
-                  hover:text-green-800 hover:bg-white
-                  transition-all duration-200
-                  outline-white/40
-                  min-w-[170px]
-                `}
-                style={{
-                  letterSpacing: "0.05em",
-                  boxShadow: "0 0 38px 0 rgba(200,223,194,0.40), 0 2px 10px rgb(0 0 0 / 0.15)"
-                }}
-              >
-                <span className="relative z-10">RSVP Now</span>
-              </Button>
-            </div>
-          </motion.div>
+          {showRsvpButton && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+            >
+              <div className="relative inline-block w-full">
+                <Button
+                  onClick={scrollToRSVP}
+                  size="lg"
+                  className={`
+                    relative overflow-hidden
+                    px-5 py-5
+                    text-lg md:text-xl
+                    font-regular
+                    shadow-2xl
+                    border border-white
+                    bg-white
+                    text-green-700
+                    hover:text-green-800 hover:bg-white
+                    transition-all duration-200
+                    outline-white/40
+                    min-w-[170px]
+                  `}
+                  style={{
+                    letterSpacing: "0.05em",
+                    boxShadow: "0 0 38px 0 rgba(200,223,194,0.40), 0 2px 10px rgb(0 0 0 / 0.15)"
+                  }}
+                >
+                  <span className="relative z-10">{rsvpButtonLabel}</span>
+                </Button>
+              </div>
+            </motion.div>
+          )}
         </div>
       </motion.div>
 

@@ -2,7 +2,32 @@ import { motion } from "framer-motion";
 import { Heart, Gift } from "lucide-react";
 import { Card } from "./ui/card";
 
-const GiftsSection = () => {
+export interface BankAccount {
+  bank: string;
+  accountName: string;
+  accountNumber: string;
+}
+
+export interface GiftsSectionProps {
+  heading?: string;
+  message?: string[];
+  footnote?: string;
+  showAccountDetails?: boolean;
+  accounts?: BankAccount[];
+  registryLink?: string;
+}
+
+const GiftsSection = ({
+  heading = "In Lieu of Gifts",
+  message = [
+    "We are truly blessed with all that we have. Your presence and prayers are the greatest gifts we could ask for.",
+    "However, if you wish to honor us with a gift, a small contribution toward our future adventures together would be deeply appreciated and will help us start this new chapter of our lives.",
+  ],
+  footnote = "Thank you for being part of our journey. Your love means everything to us.",
+  showAccountDetails = false,
+  accounts = [],
+  registryLink,
+}: GiftsSectionProps = {}) => {
   return (
     <section className="relative pt-20 pb-[200px] px-4" style={{ background: "var(--gradient-sage)" }}>
       <div className="container mx-auto max-w-3xl">
@@ -41,7 +66,7 @@ const GiftsSection = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="mb-8 text-4xl md:text-5xl font-bold text-foreground"
             >
-              In Lieu of Gifts
+              {heading}
             </motion.h2>
 
             <motion.div
@@ -51,13 +76,47 @@ const GiftsSection = () => {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="space-y-6 text-lg text-muted-foreground leading-relaxed"
             >
-              <p>
-              We are truly blessed with all that we have. Your presence and prayers are the greatest gifts we could ask for.
-              </p>
-              <p>
-              However, if you wish to honor us with a gift, a small contribution toward our future adventures together would be deeply appreciated and will help us start this new chapter of our lives.
-              </p>
+              {message.map((para, i) => (
+                <p key={i}>{para}</p>
+              ))}
             </motion.div>
+
+            {showAccountDetails && accounts.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.45 }}
+                className="mt-8 space-y-4"
+              >
+                {accounts.map((acct) => (
+                  <div key={acct.accountNumber} className="rounded-lg border bg-background/60 p-4 text-left">
+                    <p className="text-sm font-medium text-muted-foreground">{acct.bank}</p>
+                    <p className="font-semibold text-foreground">{acct.accountName}</p>
+                    <p className="font-mono text-lg text-primary">{acct.accountNumber}</p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+
+            {registryLink && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="mt-6"
+              >
+                <a
+                  href={registryLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-primary px-6 py-2 text-sm text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  View Registry
+                </a>
+              </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -66,9 +125,7 @@ const GiftsSection = () => {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="mt-10 pt-8 border-t border-border"
             >
-              <p className="text-sm text-muted-foreground italic">
-                Thank you for being part of our journey. Your love means everything to us.
-              </p>
+              <p className="text-sm text-muted-foreground italic">{footnote}</p>
             </motion.div>
           </Card>
         </motion.div>

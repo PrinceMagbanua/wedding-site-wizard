@@ -1,7 +1,37 @@
 import { motion } from "framer-motion";
 import { Heart, Calendar, MapPin } from "lucide-react";
 
-const Footer = () => {
+export interface FooterProps {
+  coupleNames?: string;
+  hashtag?: string;
+  showHashtag?: boolean;
+  date?: string;
+  ceremonyTime?: string;
+  receptionTime?: string;
+  venue?: string;
+  venueAddress?: string;
+  dresscode?: string;
+  dresscodeColors?: string;
+  showDate?: boolean;
+  showVenue?: boolean;
+  copyrightText?: string;
+}
+
+const Footer = ({
+  coupleNames = "Prince & Ann",
+  hashtag = "#AnnFinallyFoundHerPrince",
+  showHashtag = true,
+  date = "Saturday, February 7, 2026",
+  ceremonyTime = "Ceremony 1:30 PM",
+  receptionTime = "Reception 4:00 PM",
+  venue = "Hampton Court",
+  venueAddress = "Hillsborough Village, Muntinlupa",
+  dresscode = "Semi-Formal Attire",
+  dresscodeColors = "Sage Green Palette",
+  showDate = true,
+  showVenue = true,
+  copyrightText,
+}: FooterProps = {}) => {
   const handleScroll = (selector: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     const el = document.querySelector(selector);
@@ -9,6 +39,8 @@ const Footer = () => {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
+
+  const copyright = copyrightText ?? `© ${new Date().getFullYear()} ${coupleNames}`;
 
   return (
     <footer
@@ -39,41 +71,45 @@ const Footer = () => {
           >
             <Heart className="h-12 w-12 fill-current" />
           </motion.div>
-          <h2 className="text-4xl font-bold mb-4">Prince & Ann</h2>
-          <p className="text-xl font-light opacity-90">
-            #AnnFinallyFoundHerPrince
-          </p>
+          <h2 className="text-4xl font-bold mb-4">{coupleNames}</h2>
+          {showHashtag && (
+            <p className="text-xl font-light opacity-90">{hashtag}</p>
+          )}
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
-          <motion.a
-            href="#details-section"
-            onClick={handleScroll("#details-section")}
-            whileHover={{ scale: 1.04 }}
-            className="text-center cursor-pointer block"
-          >
-            <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
-              <Calendar className="h-8 w-8 mx-auto mb-3 opacity-80" />
-            </motion.div>
-            <h3 className="font-semibold mb-2">Date</h3>
-            <p className="opacity-90">Saturday, February 7, 2026</p>
-            <p className="opacity-90">Ceremony 1:30 PM</p>
-            <p className="opacity-90">Reception 4:00 PM</p>
-          </motion.a>
+          {showDate && (
+            <motion.a
+              href="#details-section"
+              onClick={handleScroll("#details-section")}
+              whileHover={{ scale: 1.04 }}
+              className="text-center cursor-pointer block"
+            >
+              <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
+                <Calendar className="h-8 w-8 mx-auto mb-3 opacity-80" />
+              </motion.div>
+              <h3 className="font-semibold mb-2">Date</h3>
+              <p className="opacity-90">{date}</p>
+              <p className="opacity-90">{ceremonyTime}</p>
+              <p className="opacity-90">{receptionTime}</p>
+            </motion.a>
+          )}
 
-          <motion.a
-            href="#details-section"
-            onClick={handleScroll("#details-section")}
-            whileHover={{ scale: 1.04 }}
-            className="text-center cursor-pointer block"
-          >
-            <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
-              <MapPin className="h-8 w-8 mx-auto mb-3 opacity-80" />
-            </motion.div>
-            <h3 className="font-semibold mb-2">Location</h3>
-            <p className="opacity-90">Hampton Court</p>
-            <p className="opacity-90">Hillsborough Village, Muntinlupa</p>
-          </motion.a>
+          {showVenue && (
+            <motion.a
+              href="#details-section"
+              onClick={handleScroll("#details-section")}
+              whileHover={{ scale: 1.04 }}
+              className="text-center cursor-pointer block"
+            >
+              <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
+                <MapPin className="h-8 w-8 mx-auto mb-3 opacity-80" />
+              </motion.div>
+              <h3 className="font-semibold mb-2">Location</h3>
+              <p className="opacity-90">{venue}</p>
+              <p className="opacity-90">{venueAddress}</p>
+            </motion.a>
+          )}
 
           <motion.a
             href="#attire-section"
@@ -85,8 +121,8 @@ const Footer = () => {
               <Heart className="h-8 w-8 mx-auto mb-3 opacity-80" />
             </motion.div>
             <h3 className="font-semibold mb-2">Dress Code</h3>
-            <p className="opacity-90">Semi-Formal Attire</p>
-            <p className="opacity-90">Sage Green Palette</p>
+            <p className="opacity-90">{dresscode}</p>
+            <p className="opacity-90">{dresscodeColors}</p>
           </motion.a>
         </div>
 
@@ -94,9 +130,7 @@ const Footer = () => {
           <p className="opacity-75 text-sm">
             We can't wait to celebrate this special day with you
           </p>
-          <p className="opacity-75 text-sm mt-2">
-            © 2026 Prince & Ann
-          </p>
+          <p className="opacity-75 text-sm mt-2">{copyright}</p>
         </div>
       </motion.div>
     </footer>

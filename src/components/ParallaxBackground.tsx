@@ -3,7 +3,11 @@ import { useRef } from "react";
 import leaf1 from "@/assets/leaf-1.png";
 import leaf2 from "@/assets/leaf-2.png";
 
-const ParallaxBackground = () => {
+export interface ParallaxBackgroundProps {
+  show?: boolean;
+}
+
+const ParallaxBackground = ({ show = true }: ParallaxBackgroundProps = {}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, {
@@ -18,6 +22,8 @@ const ParallaxBackground = () => {
   const y4 = useTransform(smoothProgress, [0, 1], [0, 50]);
   const rotate1 = useTransform(smoothProgress, [0, 1], [0, 100]);
   const rotate2 = useTransform(smoothProgress, [0, 1], [0, -100]);
+
+  if (!show) return null;
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none z-0 overflow-hidden">

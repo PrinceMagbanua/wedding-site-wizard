@@ -4,7 +4,33 @@ import lrwn4041 from "@/assets/photos/LRWN4622.jpg";
 import lrwn4124 from "@/assets/photos/LRWN4129.jpg";
 import lrwn4144 from "@/assets/photos/LRWN4144.jpg";
 
-const PhotoGallery = () => {
+export interface GalleryPhoto {
+  src: string;
+  alt: string;
+  caption?: string;
+}
+
+export interface PhotoGalleryProps {
+  heading?: string;
+  body?: string[];
+  closingLine?: string;
+  photos?: GalleryPhoto[];
+}
+
+const defaultPhotos: GalleryPhoto[] = [
+  { src: lrwn4124, alt: "Candid look", caption: "Quiet glances" },
+  { src: lrwn4144, alt: "Sunlit portrait", caption: "Sunlit moments" },
+  { src: lrwn4041, alt: "City stroll", caption: "City strolls" },
+];
+
+const PhotoGallery = ({
+  heading = "Hello, Family & Friends!",
+  body = [
+    "After 7 wonderful years of love and laughter, we're thrilled to celebrate this special moment with you. Here you'll find all the details about our big day—from the venue to what to wear—to make things easy and memorable for everyone.",
+  ],
+  closingLine = "Your presence means everything to us. Let's create unforgettable memories together! ♡",
+  photos = defaultPhotos,
+}: PhotoGalleryProps = {}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const photosRef = useRef<HTMLDivElement>(null);
@@ -33,22 +59,13 @@ const PhotoGallery = () => {
   const y2 = useTransform(scrollYProgress, [0, 1], [-50, 50]);
   const y3 = useTransform(scrollYProgress, [0, 1], [150, -150]);
 
-  // Text animation transforms
   const titleY = useTransform(textScrollProgress, [0, 0.3, 0.6, 1], [50, 0, 0, -20]);
   const titleOpacity = useTransform(textScrollProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0.8]);
 
   const subtitleY = useTransform(textScrollProgress, [0.1, 0.4, 0.7, 1], [30, 0, 0, -15]);
   const subtitleOpacity = useTransform(textScrollProgress, [0.1, 0.3, 0.9, 1], [0, 1, 1, 0.8]);
 
-  const contentY = useTransform(textScrollProgress, [0.2, 0.5, 0.8, 1], [40, 0, 0, -10]);
-  const contentOpacity = useTransform(textScrollProgress, [0.2, 0.4, 0.9, 1], [0, 1, 1, 0.8]);
-
-  const photos = [
-    { src: lrwn4124, alt: "Candid look", caption: "Quiet glances" },
-    { src: lrwn4144, alt: "Sunlit portrait", caption: "Sunlit moments" },
-    { src: lrwn4041, alt: "City stroll", caption: "City strolls" },
-  ];
-
+  const displayPhotos = photos.slice(0, 3);
   const yTransforms = [y1, y2, y3];
 
   return (
@@ -88,7 +105,7 @@ const PhotoGallery = () => {
               }}
               className="text-3xl md:text-4xl font-bold text-foreground mb-6"
             >
-              Hello, Family & Friends!
+              {heading}
             </motion.h1>
 
             <motion.div
@@ -98,25 +115,30 @@ const PhotoGallery = () => {
               }}
               className="space-y-4 max-w-3xl mx-auto"
             >
-              <motion.p
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-lg md:text-xl text-muted-foreground leading-relaxed"
-              >
-                After 7 wonderful years of love and laughter, we're thrilled to celebrate this special moment with you. Here you'll find all the details about our big day—from the venue to what to wear—to make things easy and memorable for everyone.
-              </motion.p>
+              {body.map((para, i) => (
+                <motion.p
+                  key={i}
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.2 + i * 0.15 }}
+                  className="text-lg md:text-xl text-muted-foreground leading-relaxed"
+                >
+                  {para}
+                </motion.p>
+              ))}
 
-              <motion.p
-                initial={{ y: 20, opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-base md:text-lg font-medium text-primary/90"
-              >
-                Your presence means everything to us. Let's create unforgettable memories together! ♡
-              </motion.p>
+              {closingLine && (
+                <motion.p
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="text-base md:text-lg font-medium text-primary/90"
+                >
+                  {closingLine}
+                </motion.p>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>
@@ -131,7 +153,7 @@ const PhotoGallery = () => {
           className="mb-16"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-            {photos.slice(0, 3).map((photo, idx) => {
+            {displayPhotos.map((photo, idx) => {
               const yTransform = yTransforms[idx % yTransforms.length];
               const delay = 0.15 * idx;
               const hoverTilt = idx % 2 === 0 ? 5 : -5;
@@ -164,8 +186,6 @@ const PhotoGallery = () => {
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
-                    </div>
                   </div>
                 </motion.div>
               );

@@ -3,7 +3,20 @@ import { motion } from "framer-motion";
 import musicSrc from "@/assets/music/collide-howie-day-instrumental.mp3";
 import { Volume2, VolumeX } from "lucide-react";
 
-const BackgroundMusic = () => {
+export interface BackgroundMusicProps {
+  src?: string;
+  autoplay?: boolean;
+  loop?: boolean;
+  defaultVolume?: number;
+}
+
+const BackgroundMusic = ({
+  src,
+  autoplay = false,
+  loop = true,
+  defaultVolume = 0.5,
+}: BackgroundMusicProps = {}) => {
+  const audioSrc = src ?? musicSrc;
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [bounceActive, setBounceActive] = useState(false);
@@ -11,10 +24,10 @@ const BackgroundMusic = () => {
   // Ensure loop and baseline audio config on mount
   useEffect(() => {
     if (!audioRef.current) return;
-    audioRef.current.loop = true;
+    audioRef.current.loop = loop;
     audioRef.current.muted = false;
-    audioRef.current.volume = 0.5;
-  }, []);
+    audioRef.current.volume = defaultVolume;
+  }, [loop, defaultVolume]);
 
   // Allow other components (e.g., HeroSection) to start music
   useEffect(() => {
@@ -27,6 +40,13 @@ const BackgroundMusic = () => {
     };
   }, []);
 
+  // Auto-play on mount if configured (requires user gesture in most browsers)
+  useEffect(() => {
+    if (autoplay) {
+      startPlaying();
+    }
+  }, [autoplay]);
+
   // Periodic bounce attention every ~10s when not playing
   useEffect(() => {
     let intervalId: number | undefined;
@@ -35,7 +55,6 @@ const BackgroundMusic = () => {
     if (!isPlaying) {
       intervalId = window.setInterval(() => {
         setBounceActive(true);
-        // stop bounce after animation duration
         timeoutId = window.setTimeout(() => setBounceActive(false), 800);
       }, 10000);
     } else {
@@ -52,7 +71,7 @@ const BackgroundMusic = () => {
     const audio = audioRef.current;
     if (!audio) return;
     try {
-      audio.volume = 0.5;
+      audio.volume = defaultVolume;
       await audio.play();
       setIsPlaying(true);
     } catch {
@@ -77,7 +96,7 @@ const BackgroundMusic = () => {
 
   return (
     <>
-      <audio ref={audioRef} src={musicSrc} preload="auto" />
+      <audio ref={audioRef} src={audioSrc} preload="auto" />
       {/* Fixed play/stop toggle with hover label and bounce on initial load */}
       <div className="fixed top-4 right-4 z-[10000]">
         <div className="relative group">
@@ -110,5 +129,3 @@ const BackgroundMusic = () => {
 };
 
 export default BackgroundMusic;
-
-

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Palette, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Card } from "./ui/card";
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from "./ui/dialog";
 
@@ -12,37 +12,68 @@ import women2 from "@/assets/attire/women-2.jpg";
 import women3 from "@/assets/attire/women-3.jpg";
 import women4 from "@/assets/attire/women-4.jpg";
 
-const AttireSection = () => {
-  const colorPalette = [
-    { name: "Deep Olive", color: "#4a6a45" },
-    { name: "Garden Green", color: "#5c7f53" },
-    { name: "Soft Sage", color: "#7ea56a" },
-    { name: "Fresh Mint", color: "#4faa76" },
-    { name: "Sage Khaki", color: "#a7b38c" },
-  ];
+export interface PaletteColor {
+  name: string;
+  color: string; // hex
+}
 
+export interface InspoLook {
+  title: string;
+  image: string;
+}
 
-  const inspirationGroups = [
-    {
-      label: "For her",
-      looks: [
-        { title: "Soft florals", image: women1 },
-        { title: "Champagne satin", image: women2 },
-        { title: "Romantic sleeves", image: women3 },
-        { title: "Mixed neutrals", image: women4 },
-      ],
-    },
-    {
-      label: "For him",
-      looks: [
-        { title: "Sage suiting", image: men1 },
-        { title: "Black-tie optional", image: men2 },
-        { title: "Modern charcoal", image: men3 },
-        { title: "Casual luxe", image: men4 },
-      ],
-    },
-  ];
+export interface InspoGroup {
+  label: string;
+  description?: string;
+  looks: InspoLook[];
+}
 
+export interface AttrireSectionProps {
+  heading?: string;
+  dresscode?: string;
+  dresscodeInstructions?: string;
+  palette?: PaletteColor[];
+  inspoGroups?: InspoGroup[];
+}
+
+const defaultPalette: PaletteColor[] = [
+  { name: "Deep Olive", color: "#4a6a45" },
+  { name: "Garden Green", color: "#5c7f53" },
+  { name: "Soft Sage", color: "#7ea56a" },
+  { name: "Fresh Mint", color: "#4faa76" },
+  { name: "Sage Khaki", color: "#a7b38c" },
+];
+
+const defaultInspoGroups: InspoGroup[] = [
+  {
+    label: "For her",
+    description: "Dress · Skirt · Blazer · Jumpsuit",
+    looks: [
+      { title: "Soft florals", image: women1 },
+      { title: "Champagne satin", image: women2 },
+      { title: "Romantic sleeves", image: women3 },
+      { title: "Mixed neutrals", image: women4 },
+    ],
+  },
+  {
+    label: "For him",
+    description: "Long Sleeves · Polo · Slacks · Blazer",
+    looks: [
+      { title: "Sage suiting", image: men1 },
+      { title: "Black-tie optional", image: men2 },
+      { title: "Modern charcoal", image: men3 },
+      { title: "Casual luxe", image: men4 },
+    ],
+  },
+];
+
+const AttireSection = ({
+  heading = "Attire & Colors",
+  dresscode = "Semi-Formal",
+  dresscodeInstructions = "We kindly encourage our guests to wear these colors for our special day.",
+  palette = defaultPalette,
+  inspoGroups = defaultInspoGroups,
+}: AttrireSectionProps = {}) => {
   return (
     <section id="attire-section" className="py-20 px-4" style={{ background: "var(--gradient-sage)" }}>
       <motion.div
@@ -63,7 +94,7 @@ const AttireSection = () => {
             <Sparkles className="h-12 w-12 text-primary" />
           </motion.div>
           <h2 className="mb-3 text-5xl font-bold text-foreground md:text-6xl">
-            Attire & Colors
+            {heading}
           </h2>
         </div>
 
@@ -80,16 +111,14 @@ const AttireSection = () => {
                 <div className="grid gap-8 md:grid-cols-[1.1fr_auto] md:items-center">
                   <div className="space-y-3 md:text-left text-center">
                     <p className="text-sm uppercase tracking-[0.18em] text-muted-foreground">Dress Code</p>
-                    <h3 className="text-2xl font-semibold text-foreground">Semi-Formal</h3>
+                    <h3 className="text-2xl font-semibold text-foreground">{dresscode}</h3>
                     <div className="space-y-3 text-base text-muted-foreground">
-                      <p className="text-center md:text-left">
-                        We kindly encourage our guests to wear these colors for our special day.
-                      </p>
+                      <p className="text-center md:text-left">{dresscodeInstructions}</p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap justify-center gap-3 sm:grid sm:grid-cols-5 sm:gap-6 md:justify-self-end">
-                    {colorPalette.map((tone, index) => (
+                    {palette.map((tone, index) => (
                       <motion.div
                         key={tone.name}
                         initial={{ opacity: 0, y: 10 }}
@@ -131,16 +160,14 @@ const AttireSection = () => {
               </div>
 
               <div className="space-y-6">
-                {inspirationGroups.map((group) => (
+                {inspoGroups.map((group) => (
                   <div key={group.label} className="space-y-3">
                     <div className="space-y-1">
                       <p className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                         {group.label}
                       </p>
-                      {group.label === "For her" ? (
-                        <p className="text-xs text-muted-foreground">Dress · Skirt · Blazer · Jumpsuit</p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">Long Sleeves · Polo · Slacks · Blazer</p>
+                      {group.description && (
+                        <p className="text-xs text-muted-foreground">{group.description}</p>
                       )}
                     </div>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">

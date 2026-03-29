@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep \"\\\\.tsx$\")",
+      "Bash(ls -la /c/Dev/personal/wedding-site-wizard/src/components/*.tsx)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)"
+    ]
+  }
+}

@@ -3,7 +3,48 @@ import { Calendar, MapPin, Clock } from "lucide-react";
 import { Card } from "./ui/card";
 import type { SVGProps } from "react";
 
-const EventDetails = () => {
+export interface EventLocation {
+  label: string;
+  time: string;
+  venueName: string;
+  address: string;
+  mapUrl?: string;
+  wazeUrl?: string;
+}
+
+export interface EventDetailsProps {
+  heading?: string;
+  dayOfWeek?: string;
+  displayDate?: string;
+  ceremony?: EventLocation;
+  reception?: EventLocation;
+}
+
+const defaultCeremony: EventLocation = {
+  label: "Church Ceremony",
+  time: "1:30 PM",
+  venueName: "Sacred Heart Of Jesus Parish",
+  address: "Alabang, Muntinlupa City",
+  mapUrl: "https://maps.app.goo.gl/VJ1KjEXoYPBhK1wW7",
+  wazeUrl: "https://ul.waze.com/ul?ll=14.43501270%2C121.04214907&navigate=yes&zoom=17&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location",
+};
+
+const defaultReception: EventLocation = {
+  label: "Wedding Reception",
+  time: "4:00 PM",
+  venueName: "Hampton Court",
+  address: "Hillsborough Village, Alabang, Muntinlupa City",
+  mapUrl: "https://maps.app.goo.gl/7nGpDrZPyCf8wumy7",
+  wazeUrl: "https://ul.waze.com/ul?ll=14.43987523%2C121.03635550&navigate=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location",
+};
+
+const EventDetails = ({
+  heading = "The Celebration",
+  dayOfWeek = "Saturday",
+  displayDate = "February 7, 2026",
+  ceremony = defaultCeremony,
+  reception = defaultReception,
+}: EventDetailsProps = {}) => {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -65,6 +106,52 @@ const EventDetails = () => {
     </svg>
   );
 
+  const LocationCard = ({ loc }: { loc: EventLocation }) => (
+    <div className="flex items-start gap-4">
+      <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
+        <div className="rounded-full bg-primary/10 p-3 md:p-4">
+          <Clock className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+        </div>
+      </motion.div>
+      <div className="flex-1">
+        <h3 className="text-lg md:text-xl font-semibold mb-1">{loc.label}</h3>
+        <p className="text-primary font-medium mb-2 md:mb-3">{loc.time}</p>
+        <div className="text-muted-foreground">
+          <p className="mb-1">{loc.venueName}</p>
+          <p className="text-sm">{loc.address}</p>
+        </div>
+        {(loc.mapUrl || loc.wazeUrl) && (
+          <div className="mt-4 flex gap-2 flex-wrap">
+            {loc.mapUrl && (
+              <a
+                href={loc.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open location in Google Maps"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
+              >
+                <GoogleMapsIcon className="h-4 w-4" />
+                <span>Google Maps</span>
+              </a>
+            )}
+            {loc.wazeUrl && (
+              <a
+                href={loc.wazeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open location in Waze"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
+              >
+                <WazeIcon className="h-4 w-4" />
+                <span>Waze</span>
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <section id="details-section" className="relative py-14 md:py-16 px-4" style={{ background: "var(--gradient-sage)" }}>
       <motion.div
@@ -76,16 +163,16 @@ const EventDetails = () => {
       >
         {/* Section heading with single date */}
         <motion.div variants={itemVariants} className="mb-4 md:mb-8 text-center">
-          <h2 className="mb-2 text-4xl md:text-5xl font-bold text-foreground">The Celebration</h2>
+          <h2 className="mb-2 text-4xl md:text-5xl font-bold text-foreground">{heading}</h2>
           <div className="mt-4 mx-auto w-full max-w-sm md:max-w-xs">
             <div className="relative flex items-center justify-center md:justify-start md:gap-6 rounded-xl bg-white/95 px-5 py-4 shadow-sm">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 md:static md:transform-none md:left-0 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                 <Calendar className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 flex flex-col items-start text-left md:items-start md:text-left pl-12 md:pl-0">
-                <span className="text-sm font-medium text-muted-foreground">Saturday</span>
+                <span className="text-sm font-medium text-muted-foreground">{dayOfWeek}</span>
                 <span className="text-xl md:text-2xl font-bold tracking-wide text-foreground">
-                  February 7, 2026
+                  {displayDate}
                 </span>
               </div>
             </div>
@@ -96,85 +183,10 @@ const EventDetails = () => {
         <motion.div variants={itemVariants}>
           <div className="mx-auto w-full max-w-sm md:max-w-none">
             <Card className="border-none bg-card/90 p-6 md:p-8 shadow-2xl">
-            <div className="grid gap-6 md:gap-10 md:grid-cols-2">
-              {/* Church Ceremony */}
-              <div className="flex items-start gap-4">
-                <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
-                  <div className="rounded-full bg-primary/10 p-3 md:p-4">
-                    <Clock className="h-6 w-6 md:h-7 md:w-7 text-primary" />
-                  </div>
-                </motion.div>
-                <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-semibold mb-1">Church Ceremony</h3>
-                  <p className="text-primary font-medium mb-2 md:mb-3">1:30 PM</p>
-                  <div className="text-muted-foreground">
-                    <p className="mb-1">Sacred Heart Of Jesus Parish</p>
-                    <p className="text-sm">Alabang, Muntinlupa City</p>
-                  </div>
-                  <div className="mt-4 flex gap-2 flex-wrap">
-                    <a
-                      href="https://maps.app.goo.gl/VJ1KjEXoYPBhK1wW7"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Open location in Google Maps"
-                      className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
-                    >
-                      <GoogleMapsIcon className="h-4 w-4" />
-                      <span>Google Maps</span>
-                    </a>
-                    <a
-                      href="https://ul.waze.com/ul?ll=14.43501270%2C121.04214907&navigate=yes&zoom=17&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Open location in Waze"
-                      className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
-                    >
-                      <WazeIcon className="h-4 w-4" />
-                      <span>Waze</span>
-                    </a>
-                  </div>
-                </div>
+              <div className="grid gap-6 md:gap-10 md:grid-cols-2">
+                <LocationCard loc={ceremony} />
+                <LocationCard loc={reception} />
               </div>
-
-              {/* Wedding Reception */}
-              <div className="flex items-start gap-4">
-                <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
-                  <div className="rounded-full bg-primary/10 p-3 md:p-4">
-                    <Clock className="h-6 w-6 md:h-7 md:w-7 text-primary" />
-                  </div>
-                </motion.div>
-                <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-semibold mb-1">Wedding Reception</h3>
-                  <p className="text-primary font-medium mb-2 md:mb-3">4:00 PM</p>
-                  <div className="text-muted-foreground">
-                    <p className="mb-1">Hampton Court</p>
-                    <p className="text-sm">Hillsborough Village, Alabang, Muntinlupa City</p>
-                  </div>
-                  <div className="mt-4 flex gap-2 flex-wrap">
-                    <a
-                      href="https://maps.app.goo.gl/7nGpDrZPyCf8wumy7"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Open location in Google Maps"
-                      className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
-                    >
-                      <GoogleMapsIcon className="h-4 w-4" />
-                      <span>Google Maps</span>
-                    </a>
-                    <a
-                      href="https://ul.waze.com/ul?ll=14.43987523%2C121.03635550&navigate=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Open location in Waze"
-                      className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
-                    >
-                      <WazeIcon className="h-4 w-4" />
-                      <span>Waze</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
             </Card>
           </div>
         </motion.div>
