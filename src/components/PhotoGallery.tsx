@@ -1,8 +1,12 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { Images } from "lucide-react";
 import lrwn4041 from "@/assets/photos/LRWN4622.jpg";
 import lrwn4124 from "@/assets/photos/LRWN4129.jpg";
 import lrwn4144 from "@/assets/photos/LRWN4144.jpg";
+import EditableText from "./builder/editor/EditableText";
+import ImageManagerModal from "./builder/editor/ImageManagerModal";
+import { useBuilderContext } from "./builder/BuilderContext";
 
 export interface GalleryPhoto {
   src: string;
@@ -15,6 +19,9 @@ export interface PhotoGalleryProps {
   body?: string[];
   closingLine?: string;
   photos?: GalleryPhoto[];
+  onHeadingChange?: (value: string) => void;
+  onBodyChange?: (value: string) => void;
+  onPhotosChange?: (srcs: string[]) => void;
 }
 
 const defaultPhotos: GalleryPhoto[] = [
@@ -30,7 +37,12 @@ const PhotoGallery = ({
   ],
   closingLine = "Your presence means everything to us. Let's create unforgettable memories together! ♡",
   photos = defaultPhotos,
+  onHeadingChange,
+  onBodyChange,
+  onPhotosChange,
 }: PhotoGalleryProps = {}) => {
+  const { isEditing } = useBuilderContext();
+  const [imageManagerOpen, setImageManagerOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const photosRef = useRef<HTMLDivElement>(null);
@@ -69,6 +81,7 @@ const PhotoGallery = ({
   const yTransforms = [y1, y2, y3];
 
   return (
+  <>
     <section ref={containerRef} className="py-20 px-4 bg-background relative overflow-hidden">
       <motion.div
         initial={{ opacity: 0 }}
@@ -105,7 +118,11 @@ const PhotoGallery = ({
               }}
               className="text-3xl md:text-4xl font-bold text-foreground mb-6"
             >
-              {heading}
+              <EditableText
+                as="span"
+                value={heading}
+                onChange={onHeadingChange ?? (() => {})}
+              />
             </motion.h1>
 
             <motion.div
@@ -124,7 +141,14 @@ const PhotoGallery = ({
                   transition={{ duration: 0.8, delay: 0.2 + i * 0.15 }}
                   className="text-lg md:text-xl text-muted-foreground leading-relaxed"
                 >
-                  {para}
+                  {i === 0 ? (
+                    <EditableText
+                      as="span"
+                      value={para}
+                      onChange={onBodyChange ?? (() => {})}
+                      multiline
+                    />
+                  ) : para}
                 </motion.p>
               ))}
 
@@ -152,6 +176,23 @@ const PhotoGallery = ({
           transition={{ duration: 1, delay: 0.3 }}
           className="mb-16"
         >
+          {/* Manage photos button — builder only */}
+          {isEditing && onPhotosChange && (
+            <div className="mb-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setImageManagerOpen(true)}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm hover:bg-muted transition-colors"
+              >
+                <Images className="h-3.5 w-3.5" />
+                Manage Gallery Photos
+                <span className="ml-0.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                  {displayPhotos.length}
+                </span>
+              </button>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {displayPhotos.map((photo, idx) => {
               const yTransform = yTransforms[idx % yTransforms.length];
@@ -194,6 +235,19 @@ const PhotoGallery = ({
         </motion.div>
       </motion.div>
     </section>
+
+    {isEditing && onPhotosChange && (
+      <ImageManagerModal
+        open={imageManagerOpen}
+        onClose={() => setImageManagerOpen(false)}
+        images={photos.map((p) => p.src)}
+        onChange={onPhotosChange}
+        title="Gallery Photos"
+        maxImages={9}
+        minImages={0}
+      />
+    )}
+  </>
   );
 };
 

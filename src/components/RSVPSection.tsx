@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Users, ArrowLeft, Loader2, Check, X } from "lucide-react";
+import EditableText from "./builder/editor/EditableText";
+import { useBuilderContext } from "./builder/BuilderContext";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card } from "./ui/card";
@@ -11,7 +13,14 @@ export interface RSVPSectionProps {
   heading?: string;
   subheading?: string;
   instructions?: string;
+  showNote?: boolean;
+  noteTitle?: string;
   minSearchChars?: number;
+  onHeadingChange?: (value: string) => void;
+  onSubheadingChange?: (value: string) => void;
+  onInstructionsChange?: (value: string) => void;
+  onNoteTitleChange?: (value: string) => void;
+  onToggleNote?: () => void;
 }
 
 type Group = {
@@ -25,8 +34,16 @@ const RSVPSection = ({
   heading = "RSVP",
   subheading = "We can't wait to celebrate with you",
   instructions = "Due to venue limitations and family size, we've made the difficult decision to keep our guest list to family and close friends.",
+  showNote = true,
+  noteTitle = "Please Note:",
   minSearchChars = 3,
+  onHeadingChange,
+  onSubheadingChange,
+  onInstructionsChange,
+  onNoteTitleChange,
+  onToggleNote,
 }: RSVPSectionProps = {}) => {
+  const { isEditing } = useBuilderContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -219,17 +236,67 @@ const RSVPSection = ({
         className="container mx-auto max-w-4xl px-0 sm:px-2"
       >
         <div className="mb-4 text-center">
-          <h2 className="mb-4 text-5xl font-bold text-foreground md:text-6xl">{heading}</h2>
-          <p className="text-lg text-muted-foreground">{subheading}</p>
+          <h2 className="mb-4 text-5xl font-bold text-foreground md:text-6xl">
+            <EditableText
+              as="span"
+              value={heading}
+              onChange={onHeadingChange ?? (() => {})}
+            />
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            <EditableText
+              as="span"
+              value={subheading}
+              onChange={onSubheadingChange ?? (() => {})}
+            />
+          </p>
         </div>
 
         <Card className="border-none bg-card p-4 shadow-xl sm:p-6 md:p-12">
           <>
             <div className="mb-8">
-              <div className="mb-4 rounded-md border border-black/10 bg-secondary/20 p-3 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground">Please Note:</p>
-                <p>{instructions}</p>
-              </div>
+              {/* Note box: visible when showNote=true, or always in edit mode (as ghost when hidden) */}
+              {showNote ? (
+                <div className="relative mb-4 rounded-md border border-black/10 bg-secondary/20 p-3 text-sm text-muted-foreground">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-medium text-foreground">
+                      <EditableText
+                        as="span"
+                        value={noteTitle}
+                        onChange={onNoteTitleChange ?? (() => {})}
+                        placeholder="Note title..."
+                      />
+                    </p>
+                    {isEditing && onToggleNote && (
+                      <button
+                        type="button"
+                        onClick={onToggleNote}
+                        title="Hide this note"
+                        className="flex-shrink-0 flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <p>
+                    <EditableText
+                      as="span"
+                      value={instructions}
+                      onChange={onInstructionsChange ?? (() => {})}
+                      multiline
+                    />
+                  </p>
+                </div>
+              ) : isEditing ? (
+                /* Ghost placeholder shown only in builder when note is hidden */
+                <button
+                  type="button"
+                  onClick={onToggleNote}
+                  className="mb-4 w-full rounded-md border-2 border-dashed border-muted-foreground/25 p-3 text-sm text-muted-foreground/50 hover:border-primary/40 hover:text-primary transition-colors text-left"
+                >
+                  + Show note box
+                </button>
+              ) : null}
               <label className="mb-2 block text-sm font-medium">Find your name</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />

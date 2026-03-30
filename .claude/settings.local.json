@@ -5,7 +5,11 @@
       "Bash(ls -la /c/Dev/personal/wedding-site-wizard/src/components/*.tsx)",
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(find /d/Projects/wedding-site-wizard/docs -name *.md)",
+      "Bash(git -C /d/Projects/wedding-site-wizard log --oneline -10)",
+      "Bash(xargs basename:*)",
+      "Bash(ls d:/Projects/wedding-site-wizard/*.md)"
     ]
   }
 }

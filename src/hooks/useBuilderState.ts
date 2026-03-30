@@ -83,6 +83,8 @@ export function createDefaultConfig(): WeddingConfig {
       subheading: "We can't wait to celebrate with you",
       deadline: "",
       instructions: "Please RSVP by the deadline so we can plan accordingly.",
+      showNote: true,
+      noteTitle: "Please Note:",
       formEndpoint: "",
       fields: ["name", "attendance"],
     },
@@ -98,11 +100,24 @@ export function createDefaultConfig(): WeddingConfig {
         { name: "Color 2", hex: "#7aa67a" },
         { name: "Color 3", hex: "#b8d4b8" },
       ],
+      inspoGroups: [
+        {
+          label: "For her",
+          description: "Dress · Skirt · Blazer · Jumpsuit",
+          looks: [],
+        },
+        {
+          label: "For him",
+          description: "Long Sleeves · Polo · Slacks · Blazer",
+          looks: [],
+        },
+      ],
       inspoImages: { female: [], male: [] },
     },
     gifts: {
       heading: "In Lieu of Gifts",
       message: "Your presence and prayers are the greatest gifts we could ask for.",
+      footnote: "Thank you for being part of our journey. Your love means everything to us.",
       showAccountDetails: false,
       accounts: [],
       registryLink: "",
@@ -140,6 +155,7 @@ export function createDefaultConfig(): WeddingConfig {
     footer: {
       backgroundColor: "",
       textColor: "",
+      tagline: "We can't wait to celebrate this special day with you",
       showHashtag: true,
       showDate: true,
       showVenue: true,

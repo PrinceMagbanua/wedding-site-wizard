@@ -119,6 +119,8 @@ export interface RSVPConfig {
   subheading: string;
   deadline: string;
   instructions: string;
+  showNote: boolean;
+  noteTitle: string;
   formEndpoint: string;
   fields: string[];
 }
@@ -144,6 +146,7 @@ export interface AttireConfig {
   heading: string;
   dresscode: DresscodeConfig;
   palette: PaletteColor[];
+  inspoGroups: AttireInspoGroup[];
   inspoImages: {
     female: ImageItem[];
     male: ImageItem[];
@@ -159,6 +162,7 @@ export interface BankAccount {
 export interface GiftsConfig {
   heading: string;
   message: string;
+  footnote: string;
   showAccountDetails: boolean;
   accounts: BankAccount[];
   registryLink: string;
@@ -212,6 +216,7 @@ export interface MusicConfig {
 export interface FooterConfig {
   backgroundColor: string;
   textColor: string;
+  tagline: string;
   showHashtag: boolean;
   showDate: boolean;
   showVenue: boolean;

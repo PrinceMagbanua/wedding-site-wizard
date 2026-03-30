@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { Images } from "lucide-react";
 // import banner1 from "@/assets/photos/banner-1.jpg";
 import banner2 from "@/assets/photos/banner-2.jpg";
 // import banner3 from "@/assets/photos/banner-3.jpg";
 // import banner4 from "@/assets/photos/banner-4.jpg";
 import { Button } from "./ui/button";
+import EditableText from "./builder/editor/EditableText";
+import ImageManagerModal from "./builder/editor/ImageManagerModal";
+import { useBuilderContext } from "./builder/BuilderContext";
 
 // const defaultImages = [banner1, banner2, banner3, banner4];
 const defaultImages = [banner2];
@@ -18,7 +22,7 @@ export interface HeroSectionProps {
   overlayOpacity?: number;
   onCoupleNamesChange?: (value: string) => void;
   onTaglineChange?: (value: string) => void;
-  onBackgroundImageChange?: (value: string) => void;
+  onBackgroundImagesChange?: (images: string[]) => void;
 }
 
 const HeroSection = ({
@@ -28,7 +32,12 @@ const HeroSection = ({
   showRsvpButton = true,
   rsvpButtonLabel = "RSVP Now",
   overlayOpacity,
+  onCoupleNamesChange,
+  onTaglineChange,
+  onBackgroundImagesChange,
 }: HeroSectionProps = {}) => {
+  const { isEditing } = useBuilderContext();
+  const [imageManagerOpen, setImageManagerOpen] = useState(false);
   const heroImages = backgroundImages ?? defaultImages;
 
   const { scrollY } = useScroll();
@@ -71,6 +80,7 @@ const HeroSection = ({
     : { background: "var(--gradient-hero)" };
 
   return (
+  <>
     <section className="relative h-screen overflow-hidden">
       {/* Parallax Background Image */}
       <motion.div
@@ -95,6 +105,7 @@ const HeroSection = ({
             );
           })}
         </div>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -116,7 +127,11 @@ const HeroSection = ({
             transition={{ duration: 1, delay: 0.2 }}
           >
             <h1 className="mb-4 text-6xl font-bold tracking-wide md:text-8xl">
-              {coupleNames}
+              <EditableText
+                as="span"
+                value={coupleNames}
+                onChange={onCoupleNamesChange ?? (() => {})}
+              />
             </h1>
           </motion.div>
 
@@ -127,7 +142,11 @@ const HeroSection = ({
             className="mb-8"
           >
             <p className="text-xl font-light tracking-widest md:text-2xl">
-              {tagline}
+              <EditableText
+                as="span"
+                value={tagline}
+                onChange={onTaglineChange ?? (() => {})}
+              />
             </p>
           </motion.div>
 
@@ -168,6 +187,23 @@ const HeroSection = ({
         </div>
       </motion.div>
 
+      {/* Edit background images button — outside parallax div so z-index isn't trapped in its stacking context */}
+      {isEditing && (
+        <button
+          type="button"
+          onClick={() => setImageManagerOpen(true)}
+          className="absolute bottom-4 right-4 z-40 flex items-center gap-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs font-semibold px-3 py-1.5 shadow-lg transition-colors backdrop-blur-sm"
+        >
+          <Images className="h-3.5 w-3.5" />
+          Edit Background
+          {heroImages.length > 1 && (
+            <span className="ml-0.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">
+              {heroImages.length}
+            </span>
+          )}
+        </button>
+      )}
+
       {/* Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -194,6 +230,20 @@ const HeroSection = ({
         </motion.div>
       </motion.div>
     </section>
+
+    {/* Image manager for hero background slideshow */}
+    {isEditing && onBackgroundImagesChange && (
+      <ImageManagerModal
+        open={imageManagerOpen}
+        onClose={() => setImageManagerOpen(false)}
+        images={backgroundImages ?? []}
+        onChange={onBackgroundImagesChange}
+        title="Hero Background Images"
+        maxImages={5}
+        minImages={0}
+      />
+    )}
+  </>
   );
 };
 

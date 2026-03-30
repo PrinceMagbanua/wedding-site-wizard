@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Heart, Gift } from "lucide-react";
 import { Card } from "./ui/card";
+import EditableText from "./builder/editor/EditableText";
 
 export interface BankAccount {
   bank: string;
@@ -15,6 +16,9 @@ export interface GiftsSectionProps {
   showAccountDetails?: boolean;
   accounts?: BankAccount[];
   registryLink?: string;
+  onHeadingChange?: (value: string) => void;
+  onMessageChange?: (value: string) => void;
+  onFootnoteChange?: (value: string) => void;
 }
 
 const GiftsSection = ({
@@ -27,6 +31,9 @@ const GiftsSection = ({
   showAccountDetails = false,
   accounts = [],
   registryLink,
+  onHeadingChange,
+  onMessageChange,
+  onFootnoteChange,
 }: GiftsSectionProps = {}) => {
   return (
     <section className="relative pt-20 pb-[200px] px-4" style={{ background: "var(--gradient-sage)" }}>
@@ -66,7 +73,7 @@ const GiftsSection = ({
               transition={{ duration: 0.6, delay: 0.3 }}
               className="mb-8 text-4xl md:text-5xl font-bold text-foreground"
             >
-              {heading}
+              <EditableText as="span" value={heading} onChange={onHeadingChange ?? (() => {})} />
             </motion.h2>
 
             <motion.div
@@ -77,7 +84,11 @@ const GiftsSection = ({
               className="space-y-6 text-lg text-muted-foreground leading-relaxed"
             >
               {message.map((para, i) => (
-                <p key={i}>{para}</p>
+                <p key={i}>
+                  {i === 0 ? (
+                    <EditableText as="span" value={para} onChange={onMessageChange ?? (() => {})} multiline />
+                  ) : para}
+                </p>
               ))}
             </motion.div>
 
@@ -125,7 +136,9 @@ const GiftsSection = ({
               transition={{ duration: 0.6, delay: 0.5 }}
               className="mt-10 pt-8 border-t border-border"
             >
-              <p className="text-sm text-muted-foreground italic">{footnote}</p>
+              <p className="text-sm text-muted-foreground italic">
+                <EditableText as="span" value={footnote} onChange={onFootnoteChange ?? (() => {})} multiline />
+              </p>
             </motion.div>
           </Card>
         </motion.div>

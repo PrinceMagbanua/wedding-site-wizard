@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { Heart, Calendar, MapPin } from "lucide-react";
+import EditableText from "./builder/editor/EditableText";
 
 export interface FooterProps {
   coupleNames?: string;
   hashtag?: string;
+  tagline?: string;
   showHashtag?: boolean;
   date?: string;
   ceremonyTime?: string;
@@ -15,11 +17,16 @@ export interface FooterProps {
   showDate?: boolean;
   showVenue?: boolean;
   copyrightText?: string;
+  onCoupleNamesChange?: (value: string) => void;
+  onHashtagChange?: (value: string) => void;
+  onTaglineChange?: (value: string) => void;
+  onCopyrightTextChange?: (value: string) => void;
 }
 
 const Footer = ({
   coupleNames = "Prince & Ann",
   hashtag = "#AnnFinallyFoundHerPrince",
+  tagline = "We can't wait to celebrate this special day with you",
   showHashtag = true,
   date = "Saturday, February 7, 2026",
   ceremonyTime = "Ceremony 1:30 PM",
@@ -31,6 +38,10 @@ const Footer = ({
   showDate = true,
   showVenue = true,
   copyrightText,
+  onCoupleNamesChange,
+  onHashtagChange,
+  onTaglineChange,
+  onCopyrightTextChange,
 }: FooterProps = {}) => {
   const handleScroll = (selector: string) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -71,9 +82,13 @@ const Footer = ({
           >
             <Heart className="h-12 w-12 fill-current" />
           </motion.div>
-          <h2 className="text-4xl font-bold mb-4">{coupleNames}</h2>
+          <h2 className="text-4xl font-bold mb-4">
+            <EditableText as="span" value={coupleNames} onChange={onCoupleNamesChange ?? (() => {})} />
+          </h2>
           {showHashtag && (
-            <p className="text-xl font-light opacity-90">{hashtag}</p>
+            <p className="text-xl font-light opacity-90">
+              <EditableText as="span" value={hashtag} onChange={onHashtagChange ?? (() => {})} />
+            </p>
           )}
         </div>
 
@@ -128,9 +143,11 @@ const Footer = ({
 
         <div className="border-t border-primary-foreground/20 pt-8 text-center">
           <p className="opacity-75 text-sm">
-            We can't wait to celebrate this special day with you
+            <EditableText as="span" value={tagline} onChange={onTaglineChange ?? (() => {})} multiline />
           </p>
-          <p className="opacity-75 text-sm mt-2">{copyright}</p>
+          <p className="opacity-75 text-sm mt-2">
+            <EditableText as="span" value={copyright} onChange={onCopyrightTextChange ?? (() => {})} />
+          </p>
         </div>
       </motion.div>
     </footer>

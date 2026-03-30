@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { Card } from "./ui/card";
 import type { SVGProps } from "react";
+import EditableText from "./builder/editor/EditableText";
+import EditableUrl from "./builder/editor/EditableUrl";
 
 export interface EventLocation {
   label: string;
@@ -18,6 +20,11 @@ export interface EventDetailsProps {
   displayDate?: string;
   ceremony?: EventLocation;
   reception?: EventLocation;
+  onHeadingChange?: (value: string) => void;
+  onDayOfWeekChange?: (value: string) => void;
+  onDisplayDateChange?: (value: string) => void;
+  onCeremonyChange?: (field: string, value: string) => void;
+  onReceptionChange?: (field: string, value: string) => void;
 }
 
 const defaultCeremony: EventLocation = {
@@ -38,75 +45,41 @@ const defaultReception: EventLocation = {
   wazeUrl: "https://ul.waze.com/ul?ll=14.43987523%2C121.03635550&navigate=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location",
 };
 
-const EventDetails = ({
-  heading = "The Celebration",
-  dayOfWeek = "Saturday",
-  displayDate = "February 7, 2026",
-  ceremony = defaultCeremony,
-  reception = defaultReception,
-}: EventDetailsProps = {}) => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
+// ─── Brand icons ──────────────────────────────────────────────────────────────
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 },
-    },
-  };
+const GoogleMapsIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...props}>
+    <g transform="scale(1.03, 1.03), translate(3.5, 0)">
+      <path fill="#1a73e8" d="M14.45.78A8.09,8.09,0,0,0,5.8,3.29L9.63,6.51Z" transform="translate(-3.91 -0.4)" />
+      <path fill="#ea4335" d="M5.8,3.29a8.07,8.07,0,0,0-1.89,5.2,9.06,9.06,0,0,0,.8,3.86L9.63,6.51Z" transform="translate(-3.91 -0.4)" />
+      <path fill="#4285f4" d="M12,5.4a3.09,3.09,0,0,1,3.1,3.09,3.06,3.06,0,0,1-.74,2l4.82-5.73a8.12,8.12,0,0,0-4.73-4L9.63,6.51A3.07,3.07,0,0,1,12,5.4Z" transform="translate(-3.91 -0.4)" />
+      <path fill="#fbbc04" d="M12,11.59a3.1,3.1,0,0,1-3.1-3.1,3.07,3.07,0,0,1,.73-2L4.71,12.35A28.67,28.67,0,0,0,8.38,17.6l6-7.11A3.07,3.07,0,0,1,12,11.59Z" transform="translate(-3.91 -0.4)" />
+      <path fill="#34a853" d="M14.25,19.54c2.7-4.22,5.84-6.14,5.84-11a8.1,8.1,0,0,0-.91-3.73L8.38,17.6c.46.6.92,1.24,1.37,1.94C11.4,22.08,10.94,23.6,12,23.6S12.6,22.08,14.25,19.54Z" transform="translate(-3.91 -0.4)" />
+    </g>
+  </svg>
+);
 
-  // Inline brand icons
-  const GoogleMapsIcon = (props: SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...props}>
-      <g transform="scale(1.03, 1.03), translate(3.5, 0)">
-        <path
-          fill="#1a73e8"
-          d="M14.45.78A8.09,8.09,0,0,0,5.8,3.29L9.63,6.51Z"
-          transform="translate(-3.91 -0.4)"
-        />
-        <path
-          fill="#ea4335"
-          d="M5.8,3.29a8.07,8.07,0,0,0-1.89,5.2,9.06,9.06,0,0,0,.8,3.86L9.63,6.51Z"
-          transform="translate(-3.91 -0.4)"
-        />
-        <path
-          fill="#4285f4"
-          d="M12,5.4a3.09,3.09,0,0,1,3.1,3.09,3.06,3.06,0,0,1-.74,2l4.82-5.73a8.12,8.12,0,0,0-4.73-4L9.63,6.51A3.07,3.07,0,0,1,12,5.4Z"
-          transform="translate(-3.91 -0.4)"
-        />
-        <path
-          fill="#fbbc04"
-          d="M12,11.59a3.1,3.1,0,0,1-3.1-3.1,3.07,3.07,0,0,1,.73-2L4.71,12.35A28.67,28.67,0,0,0,8.38,17.6l6-7.11A3.07,3.07,0,0,1,12,11.59Z"
-          transform="translate(-3.91 -0.4)"
-        />
-        <path
-          fill="#34a853"
-          d="M14.25,19.54c2.7-4.22,5.84-6.14,5.84-11a8.1,8.1,0,0,0-.91-3.73L8.38,17.6c.46.6.92,1.24,1.37,1.94C11.4,22.08,10.94,23.6,12,23.6S12.6,22.08,14.25,19.54Z"
-          transform="translate(-3.91 -0.4)"
-        />
-      </g>
-    </svg>
-  );
+const WazeIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true" focusable="false" {...props}>
+    <path
+      fill="#27a5cf"
+      d="m 12.937649,5.689685 c -0.11625,-0.68661 -0.388914,-1.33016 -0.810638,-1.91282 -0.476314,-0.65811 -1.127922,-1.20761 -1.884324,-1.58903 -0.7645339,-0.38552 -1.6178829,-0.58938 -2.4678369,-0.58938 -0.239783,0 -0.481475,0.0163 -0.71843,0.0482 -0.992367,0.13407 -1.968118,0.54689 -2.747572,1.16243 -0.878239,0.69354 -1.444993,1.58521 -1.638884,2.57878 -0.05777,0.29537 -0.08238,0.62212 -0.106209,0.93806 -0.03734,0.49456 -0.07594,1.00595 -0.233207,1.34013 -0.107482,0.2284 -0.267856,0.3805 -0.701389,0.3805 -0.238581,0 -0.456585,0.13492 -0.563077,0.34847 -0.10642098,0.21355 -0.08294,0.46889 0.0606,0.65931 0.653164,0.8665 1.505522,1.39133 2.402923,1.70755 -0.04087,0.12346 -0.06385,0.25491 -0.06385,0.39209 0,0.68902 0.558551,1.24757 1.247566,1.24757 0.671972,0 1.218291,-0.53161 1.244949,-1.19701 0.292534,0.0159 1.685483,0.0197 1.840836,0.0153 0.03444,0.65825 0.577502,1.18166 1.244243,1.18166 0.688943,0 1.2474949,-0.55848 1.2474949,-1.24757 0,-0.15705 -0.03026,-0.30674 -0.08316,-0.44513 0.489183,-0.23794 0.95093,-0.55904 1.353845,-0.94576 0.561875,-0.53918 0.974265,-1.1753 1.192764,-1.83964 0.245865,-0.7477 0.307667,-1.4993 0.183355,-2.23378 m -8.2243299,5.876 c -0.227338,0 -0.411684,-0.18421 -0.411684,-0.41169 0,-0.22733 0.184346,-0.41168 0.411684,-0.41168 0.227408,0 0.411683,0.18435 0.411683,0.41168 0,0.22748 -0.184275,0.41169 -0.411683,0.41169 m 4.330028,0 c -0.227409,0 -0.411754,-0.18421 -0.411754,-0.41169 0,-0.22733 0.184345,-0.41168 0.411754,-0.41168 0.227408,0 0.411683,0.18435 0.411683,0.41168 7.1e-5,0.22748 -0.184275,0.41169 -0.411683,0.41169 m 3.1132919,-3.83873 c -0.360276,1.09533 -1.309862,1.9998 -2.3218169,2.46289 -0.215458,-0.17706 -0.490951,-0.28327 -0.791405,-0.28327 -0.484233,0 -0.903058,0.2762 -1.109748,0.67933 -0.210438,0.009 -1.777338,0.003 -2.120219,-0.0202 -0.210155,-0.39223 -0.623818,-0.65917 -1.100061,-0.65917 -0.316788,0 -0.605221,0.11894 -0.825134,0.31354 -0.852358,-0.27543 -1.65734,-0.74608 -2.259025,-1.54449 1.779176,0 1.428092,-1.98827 1.658259,-3.16731 0.350659,-1.79693 2.12835,-3.00518 3.853148,-3.23817 0.212135,-0.0286 0.42427,-0.0426 0.634213,-0.0426 2.8347599,7e-5 5.3581049,2.53098 4.3817889,5.49938 m -4.4056189,0.87435 c -1.023692,0 -1.945914,-0.67119 -2.115056,-1.54978 -0.03281,-0.17056 0.07891,-0.33553 0.249471,-0.36834 0.170627,-0.0329 0.335527,0.0789 0.368337,0.24947 0.09942,0.51648 0.717865,1.06039 1.542221,1.03882 0.858722,-0.0225 1.4259,-0.53599 1.542433,-1.03154 0.03981,-0.16907 0.209378,-0.27379 0.378308,-0.23419 0.169213,0.0398 0.274007,0.20916 0.234197,0.37823 -0.09518,0.40454 -0.35568,0.77932 -0.733634,1.05545 -0.393652,0.28779 -0.879511,0.44718 -1.404757,0.46104 -0.02051,6.3e-4 -0.04108,8.4e-4 -0.06152,8.4e-4 m 2.037132,-3.23958 c 0,0.33369 -0.270542,0.60423 -0.604231,0.60423 -0.333617,0 -0.60416,-0.27054 -0.60416,-0.60423 0,-0.33369 0.270543,-0.60409 0.60416,-0.60409 0.333689,0 0.604231,0.27033 0.604231,0.60409 m -2.822597,0 c 0,0.33369 -0.270472,0.60423 -0.60416,0.60423 -0.333618,0 -0.60416,-0.27054 -0.60416,-0.60423 0,-0.33369 0.270542,-0.60409 0.60416,-0.60409 0.333688,0 0.60416,0.27033 0.60416,0.60409"
+    />
+  </svg>
+);
 
-  const WazeIcon = (props: SVGProps<SVGSVGElement>) => (
-    <svg viewBox="0 0 14 14" aria-hidden="true" focusable="false" {...props}>
-      <path
-        fill="#27a5cf"
-        d="m 12.937649,5.689685 c -0.11625,-0.68661 -0.388914,-1.33016 -0.810638,-1.91282 -0.476314,-0.65811 -1.127922,-1.20761 -1.884324,-1.58903 -0.7645339,-0.38552 -1.6178829,-0.58938 -2.4678369,-0.58938 -0.239783,0 -0.481475,0.0163 -0.71843,0.0482 -0.992367,0.13407 -1.968118,0.54689 -2.747572,1.16243 -0.878239,0.69354 -1.444993,1.58521 -1.638884,2.57878 -0.05777,0.29537 -0.08238,0.62212 -0.106209,0.93806 -0.03734,0.49456 -0.07594,1.00595 -0.233207,1.34013 -0.107482,0.2284 -0.267856,0.3805 -0.701389,0.3805 -0.238581,0 -0.456585,0.13492 -0.563077,0.34847 -0.10642098,0.21355 -0.08294,0.46889 0.0606,0.65931 0.653164,0.8665 1.505522,1.39133 2.402923,1.70755 -0.04087,0.12346 -0.06385,0.25491 -0.06385,0.39209 0,0.68902 0.558551,1.24757 1.247566,1.24757 0.671972,0 1.218291,-0.53161 1.244949,-1.19701 0.292534,0.0159 1.685483,0.0197 1.840836,0.0153 0.03444,0.65825 0.577502,1.18166 1.244243,1.18166 0.688943,0 1.2474949,-0.55848 1.2474949,-1.24757 0,-0.15705 -0.03026,-0.30674 -0.08316,-0.44513 0.489183,-0.23794 0.95093,-0.55904 1.353845,-0.94576 0.561875,-0.53918 0.974265,-1.1753 1.192764,-1.83964 0.245865,-0.7477 0.307667,-1.4993 0.183355,-2.23378 m -8.2243299,5.876 c -0.227338,0 -0.411684,-0.18421 -0.411684,-0.41169 0,-0.22733 0.184346,-0.41168 0.411684,-0.41168 0.227408,0 0.411683,0.18435 0.411683,0.41168 0,0.22748 -0.184275,0.41169 -0.411683,0.41169 m 4.330028,0 c -0.227409,0 -0.411754,-0.18421 -0.411754,-0.41169 0,-0.22733 0.184345,-0.41168 0.411754,-0.41168 0.227408,0 0.411683,0.18435 0.411683,0.41168 7.1e-5,0.22748 -0.184275,0.41169 -0.411683,0.41169 m 3.1132919,-3.83873 c -0.360276,1.09533 -1.309862,1.9998 -2.3218169,2.46289 -0.215458,-0.17706 -0.490951,-0.28327 -0.791405,-0.28327 -0.484233,0 -0.903058,0.2762 -1.109748,0.67933 -0.210438,0.009 -1.777338,0.003 -2.120219,-0.0202 -0.210155,-0.39223 -0.623818,-0.65917 -1.100061,-0.65917 -0.316788,0 -0.605221,0.11894 -0.825134,0.31354 -0.852358,-0.27543 -1.65734,-0.74608 -2.259025,-1.54449 1.779176,0 1.428092,-1.98827 1.658259,-3.16731 0.350659,-1.79693 2.12835,-3.00518 3.853148,-3.23817 0.212135,-0.0286 0.42427,-0.0426 0.634213,-0.0426 2.8347599,7e-5 5.3581049,2.53098 4.3817889,5.49938 m -4.4056189,0.87435 c -1.023692,0 -1.945914,-0.67119 -2.115056,-1.54978 -0.03281,-0.17056 0.07891,-0.33553 0.249471,-0.36834 0.170627,-0.0329 0.335527,0.0789 0.368337,0.24947 0.09942,0.51648 0.717865,1.06039 1.542221,1.03882 0.858722,-0.0225 1.4259,-0.53599 1.542433,-1.03154 0.03981,-0.16907 0.209378,-0.27379 0.378308,-0.23419 0.169213,0.0398 0.274007,0.20916 0.234197,0.37823 -0.09518,0.40454 -0.35568,0.77932 -0.733634,1.05545 -0.393652,0.28779 -0.879511,0.44718 -1.404757,0.46104 -0.02051,6.3e-4 -0.04108,8.4e-4 -0.06152,8.4e-4 m 2.037132,-3.23958 c 0,0.33369 -0.270542,0.60423 -0.604231,0.60423 -0.333617,0 -0.60416,-0.27054 -0.60416,-0.60423 0,-0.33369 0.270543,-0.60409 0.60416,-0.60409 0.333689,0 0.604231,0.27033 0.604231,0.60409 m -2.822597,0 c 0,0.33369 -0.270472,0.60423 -0.60416,0.60423 -0.333618,0 -0.60416,-0.27054 -0.60416,-0.60423 0,-0.33369 0.270542,-0.60409 0.60416,-0.60409 0.333688,0 0.60416,0.27033 0.60416,0.60409"
-      />
-    </svg>
-  );
+// ─── Location Card ────────────────────────────────────────────────────────────
 
-  const LocationCard = ({ loc }: { loc: EventLocation }) => (
+interface LocationCardProps {
+  loc: EventLocation;
+  onFieldChange?: (field: string, value: string) => void;
+}
+
+const LocationCard = ({ loc, onFieldChange }: LocationCardProps) => {
+  const noop = () => {};
+  const on = (field: string) => onFieldChange ? (v: string) => onFieldChange(field, v) : noop;
+
+  return (
     <div className="flex items-start gap-4">
       <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
         <div className="rounded-full bg-primary/10 p-3 md:p-4">
@@ -114,43 +87,83 @@ const EventDetails = ({
         </div>
       </motion.div>
       <div className="flex-1">
-        <h3 className="text-lg md:text-xl font-semibold mb-1">{loc.label}</h3>
-        <p className="text-primary font-medium mb-2 md:mb-3">{loc.time}</p>
+        <h3 className="text-lg md:text-xl font-semibold mb-1">
+          <EditableText as="span" value={loc.label} onChange={on("label")} />
+        </h3>
+        <p className="text-primary font-medium mb-2 md:mb-3">
+          <EditableText as="span" value={loc.time} onChange={on("time")} />
+        </p>
         <div className="text-muted-foreground">
-          <p className="mb-1">{loc.venueName}</p>
-          <p className="text-sm">{loc.address}</p>
+          <p className="mb-1">
+            <EditableText as="span" value={loc.venueName} onChange={on("venueName")} />
+          </p>
+          <p className="text-sm">
+            <EditableText as="span" value={loc.address} onChange={on("address")} />
+          </p>
         </div>
-        {(loc.mapUrl || loc.wazeUrl) && (
-          <div className="mt-4 flex gap-2 flex-wrap">
-            {loc.mapUrl && (
-              <a
-                href={loc.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open location in Google Maps"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
-              >
-                <GoogleMapsIcon className="h-4 w-4" />
-                <span>Google Maps</span>
-              </a>
-            )}
-            {loc.wazeUrl && (
-              <a
-                href={loc.wazeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open location in Waze"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
-              >
-                <WazeIcon className="h-4 w-4" />
-                <span>Waze</span>
-              </a>
-            )}
-          </div>
-        )}
+        <div className="mt-4 flex gap-2 flex-wrap">
+          <EditableUrl
+            value={loc.mapUrl ?? ""}
+            onChange={on("mapUrl")}
+            addLabel="Add Maps Link"
+          >
+            <a
+              href={loc.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open location in Google Maps"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
+            >
+              <GoogleMapsIcon className="h-4 w-4" />
+              <span>Google Maps</span>
+            </a>
+          </EditableUrl>
+
+          <EditableUrl
+            value={loc.wazeUrl ?? ""}
+            onChange={on("wazeUrl")}
+            addLabel="Add Waze Link"
+          >
+            <a
+              href={loc.wazeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open location in Waze"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-black border border-black/10 shadow-sm transition-all hover:scale-105 hover:shadow-lg"
+            >
+              <WazeIcon className="h-4 w-4" />
+              <span>Waze</span>
+            </a>
+          </EditableUrl>
+        </div>
       </div>
     </div>
   );
+};
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+const EventDetails = ({
+  heading = "The Celebration",
+  dayOfWeek = "Saturday",
+  displayDate = "February 7, 2026",
+  ceremony = defaultCeremony,
+  reception = defaultReception,
+  onHeadingChange,
+  onDayOfWeekChange,
+  onDisplayDateChange,
+  onCeremonyChange,
+  onReceptionChange,
+}: EventDetailsProps = {}) => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
 
   return (
     <section id="details-section" className="relative py-14 md:py-16 px-4" style={{ background: "var(--gradient-sage)" }}>
@@ -163,16 +176,34 @@ const EventDetails = ({
       >
         {/* Section heading with single date */}
         <motion.div variants={itemVariants} className="mb-4 md:mb-8 text-center">
-          <h2 className="mb-2 text-4xl md:text-5xl font-bold text-foreground">{heading}</h2>
+          <h2 className="mb-2 text-4xl md:text-5xl font-bold text-foreground">
+            <EditableText
+              as="span"
+              value={heading}
+              onChange={onHeadingChange ?? (() => {})}
+            />
+          </h2>
           <div className="mt-4 mx-auto w-full max-w-sm md:max-w-xs">
             <div className="relative flex items-center justify-center md:justify-start md:gap-6 rounded-xl bg-white/95 px-5 py-4 shadow-sm">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 md:static md:transform-none md:left-0 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                 <Calendar className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 flex flex-col items-start text-left md:items-start md:text-left pl-12 md:pl-0">
-                <span className="text-sm font-medium text-muted-foreground">{dayOfWeek}</span>
+                <span className="text-sm font-medium text-muted-foreground">
+                  <EditableText
+                    as="span"
+                    value={dayOfWeek}
+                    onChange={onDayOfWeekChange ?? (() => {})}
+                    placeholder="Day of week"
+                  />
+                </span>
                 <span className="text-xl md:text-2xl font-bold tracking-wide text-foreground">
-                  {displayDate}
+                  <EditableText
+                    as="span"
+                    value={displayDate}
+                    onChange={onDisplayDateChange ?? (() => {})}
+                    placeholder="Display date"
+                  />
                 </span>
               </div>
             </div>
@@ -184,8 +215,8 @@ const EventDetails = ({
           <div className="mx-auto w-full max-w-sm md:max-w-none">
             <Card className="border-none bg-card/90 p-6 md:p-8 shadow-2xl">
               <div className="grid gap-6 md:gap-10 md:grid-cols-2">
-                <LocationCard loc={ceremony} />
-                <LocationCard loc={reception} />
+                <LocationCard loc={ceremony} onFieldChange={onCeremonyChange} />
+                <LocationCard loc={reception} onFieldChange={onReceptionChange} />
               </div>
             </Card>
           </div>
